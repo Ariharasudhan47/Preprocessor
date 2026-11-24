@@ -6,8 +6,8 @@
 #include <string.h>
 #include <ctype.h>
 
-#define SIZE 4096            /* max length of one line / macro body        */
-#define MAX_INCLUDE_DEPTH 32 /* stops infinite #include recursion          */
+#define SIZE 4096            
+#define MAX_INCLUDE_DEPTH 32 
 
 void remove_comments(const char *, char *, int *);
 void process_file(FILE *, FILE *);
