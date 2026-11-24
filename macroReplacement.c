@@ -1,10 +1,10 @@
 #include "header.h"
 
-#define MAX       256     /* max number of macros          */
-#define ARG       16      /* max parameters per macro      */
-#define NAME      64      /* max macro/parameter name len  */
-#define ARG_SIZE  512     /* max length of one actual arg  */
-#define MAX_DEPTH 16      /* max nested expansion depth    */
+#define MAX       256    
+#define ARG       16      
+#define NAME      64    
+#define ARG_SIZE  512     
+#define MAX_DEPTH 16      
 
 static char macro[MAX][NAME], value[MAX][SIZE];
 static char param[MAX][ARG][NAME];
@@ -14,7 +14,7 @@ static int  count = 0;
 static int is_id_start(int c) { return isalpha((unsigned char)c) || c == '_'; }
 static int is_id_char(int c)  { return isalnum((unsigned char)c) || c == '_'; }
 
-/* ---------- safe string helpers (never overflow a SIZE buffer) ---------- */
+
 static void append(char *dst, const char *s)
 {
     size_t l = strlen(dst), n = strlen(s);
@@ -37,7 +37,7 @@ static void trim(char *s)
     if (st) memmove(s, s + st, strlen(s + st) + 1);
 }
 
-/* ---------- macro table ---------- */
+
 static int search(const char *word)
 {
     int i;
@@ -53,7 +53,7 @@ void macro_undef(const char *word)
     if (i != -1) defined_flag[i] = 0;
 }
 
-/* line points just after the word "define" */
+
 static void define_macro(const char *line)
 {
     char word[NAME];
@@ -67,7 +67,7 @@ static void define_macro(const char *line)
     index = search(word);
     if (index == -1)
     {
-        for (index = 0; index < count; index++)      /* reuse #undef'd slot */
+        for (index = 0; index < count; index++)    
             if (!defined_flag[index]) break;
         if (index == count)
         {
@@ -80,7 +80,7 @@ static void define_macro(const char *line)
     type[index] = 0;
     nargs[index] = 0;
 
-    if (line[i] == '(')                 /* function-like: '(' right after name */
+    if (line[i] == '(')                
     {
         type[index] = 1;
         i++;
@@ -94,17 +94,17 @@ static void define_macro(const char *line)
             if (j > 0 && nargs[index] < ARG) nargs[index]++;
             while (isspace((unsigned char)line[i])) i++;
             if (line[i] == ',') i++;
-            else if (line[i] != ')' && line[i] != '\0') i++;   /* skip junk */
+            else if (line[i] != ')' && line[i] != '\0') i++;   
         }
         if (line[i] == ')') i++;
     }
     while (isspace((unsigned char)line[i])) i++;
     strncpy(value[index], line + i, SIZE - 1);
     value[index][SIZE - 1] = '\0';
-    trim(value[index]);                 /* removes the trailing '\n' */
+    trim(value[index]);                
 }
 
-/* ---------- expansion ---------- */
+
 static void expand(const char *line, char *output, int depth)
 {
     int i = 0;
@@ -113,7 +113,7 @@ static void expand(const char *line, char *output, int depth)
     {
         char c = line[i];
 
-        if (c == '"' || c == '\'')                 /* copy literals untouched */
+        if (c == '"' || c == '\'')                 
         {
             char q = c, d;
             append_char(output, line[i++]);
@@ -125,7 +125,7 @@ static void expand(const char *line, char *output, int depth)
                 else if (d == q) break;
             }
         }
-        else if (isdigit((unsigned char)c))        /* numbers like 0x1F, 1.5e3 */
+        else if (isdigit((unsigned char)c))       
         {
             while (is_id_char(line[i]) || line[i] == '.')
                 append_char(output, line[i++]);
@@ -158,7 +158,7 @@ static void expand(const char *line, char *output, int depth)
                 k++;
 
                 actual[0][0] = '\0';
-                for (; line[k] != '\0'; k++)       /* collect args, honour ( ) */
+                for (; line[k] != '\0'; k++)      
                 {
                     char ch = line[k];
                     if (ch == '(') d++;
@@ -185,7 +185,7 @@ static void expand(const char *line, char *output, int depth)
                 }
                 else if (n != nargs[index] - 1) { append(output, word); continue; }
 
-                /* fully expand each argument first */
+                
                 for (a = 0; a < nargs[index]; a++)
                 {
                     char tmp[SIZE];
@@ -196,7 +196,7 @@ static void expand(const char *line, char *output, int depth)
                     actual[a][ARG_SIZE - 1] = '\0';
                 }
 
-                /* substitute all parameters in ONE pass over the body */
+             
                 {
                     char result[SIZE], token[256];
                     int x = 0, t;
@@ -230,14 +230,14 @@ static void expand(const char *line, char *output, int depth)
                     }
                     strcpy(body, result);
                 }
-                i = k + 1;                          /* skip past ')' */
+                i = k + 1;                       
             }
 
-            /* rescan the result so macros inside macros also expand */
+           
             {
                 char sub[SIZE];
                 sub[0] = '\0';
-                expanding[index] = 1;               /* prevents self-recursion */
+                expanding[index] = 1;               
                 expand(body, sub, depth + 1);
                 expanding[index] = 0;
                 append(output, sub);
@@ -261,7 +261,7 @@ void macro_replace(char *line, FILE *fs)
         if (strncmp(line + k, "define", 6) == 0 && isspace((unsigned char)line[k + 6]))
         {
             define_macro(line + k + 6);
-            return;                                  /* #define prints nothing */
+            return;                                  
         }
     }
 
