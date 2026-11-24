@@ -3,14 +3,13 @@
 #define MAX_COND 64
 
 typedef struct {
-    int parent;   /* was the enclosing region active?            */
-    int taken;    /* has some branch of this #if already been used? */
+    int parent;   
+    int taken;    
 } Cond;
 
 static int include_depth = 0;
 
-/* Reads the directive name (define, include, ifdef...) of a line that
-   starts with '#'. Returns pointer just after the name, name copied to kw. */
+
 static const char *get_directive(const char *line, char *kw)
 {
     int i = 0, j = 0;
@@ -23,7 +22,7 @@ static const char *get_directive(const char *line, char *kw)
     return line + i;
 }
 
-/* reads an identifier from s into name */
+
 static void get_name(const char *s, char *name, int cap)
 {
     int j = 0;
@@ -33,7 +32,6 @@ static void get_name(const char *s, char *name, int cap)
     name[j] = '\0';
 }
 
-/* extracts "file" or <file> into filename; returns 1 on success */
 static int get_include_name(const char *s, char *filename, int cap)
 {
     char close;
@@ -94,7 +92,7 @@ void process_file(FILE *in, FILE *out)
             continue;
         }
 
-        if (!active)             /* inside a skipped #ifdef/#else block */
+        if (!active)            
             continue;
 
         if (rest && strcmp(kw, "include") == 0)
@@ -128,7 +126,7 @@ void process_file(FILE *in, FILE *out)
             continue;
         }
 
-        macro_replace(clean, out);   /* handles #define and normal lines */
+        macro_replace(clean, out);   
     }
 
     if (sp != 0)
